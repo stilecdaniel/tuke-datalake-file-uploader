@@ -21,6 +21,8 @@ async function pushFile(file, channel, type) {
 
         switch (type) {
             case 'viewership':
+                const jsonData = JSON.parse(file)
+                file = JSON.stringify({...jsonData, ...{timestamp : timestamp}})
                 blobName = `${channel}/viewership/${date}/${timestamp}.json`;
                 break;
             case 'program':
