@@ -3,6 +3,147 @@ const axios = require('axios');
 const pushFile = require('./dataLakeConn');
 require('dotenv').config();
 
+const GENRES = {
+    "genres": [
+        {
+            "id": 28,
+            "name": "Action"
+        },
+        {
+            "id": 12,
+            "name": "Adventure"
+        },
+        {
+            "id": 16,
+            "name": "Animation"
+        },
+        {
+            "id": 35,
+            "name": "Comedy"
+        },
+        {
+            "id": 80,
+            "name": "Crime"
+        },
+        {
+            "id": 99,
+            "name": "Documentary"
+        },
+        {
+            "id": 18,
+            "name": "Drama"
+        },
+        {
+            "id": 10751,
+            "name": "Family"
+        },
+        {
+            "id": 14,
+            "name": "Fantasy"
+        },
+        {
+            "id": 36,
+            "name": "History"
+        },
+        {
+            "id": 27,
+            "name": "Horror"
+        },
+        {
+            "id": 10402,
+            "name": "Music"
+        },
+        {
+            "id": 9648,
+            "name": "Mystery"
+        },
+        {
+            "id": 10749,
+            "name": "Romance"
+        },
+        {
+            "id": 878,
+            "name": "Science Fiction"
+        },
+        {
+            "id": 10770,
+            "name": "TV Movie"
+        },
+        {
+            "id": 53,
+            "name": "Thriller"
+        },
+        {
+            "id": 10752,
+            "name": "War"
+        },
+        {
+            "id": 10759,
+            "name": "Action & Adventure"
+        },
+        {
+            "id": 16,
+            "name": "Animation"
+        },
+        {
+            "id": 35,
+            "name": "Comedy"
+        },
+        {
+            "id": 80,
+            "name": "Crime"
+        },
+        {
+            "id": 99,
+            "name": "Documentary"
+        },
+        {
+            "id": 18,
+            "name": "Drama"
+        },
+        {
+            "id": 10751,
+            "name": "Family"
+        },
+        {
+            "id": 10762,
+            "name": "Kids"
+        },
+        {
+            "id": 9648,
+            "name": "Mystery"
+        },
+        {
+            "id": 10763,
+            "name": "News"
+        },
+        {
+            "id": 10764,
+            "name": "Reality"
+        },
+        {
+            "id": 10765,
+            "name": "Sci-Fi & Fantasy"
+        },
+        {
+            "id": 10766,
+            "name": "Soap"
+        },
+        {
+            "id": 10767,
+            "name": "Talk"
+        },
+        {
+            "id": 10768,
+            "name": "War & Politics"
+        },
+        {
+            "id": 37,
+            "name": "Western"
+        }
+    ]
+}
+
 const TV_SOURCES = [
     {
         baseUrl: 'http://91.99.234.80:5000',
@@ -48,7 +189,7 @@ const TV_SOURCES = [
 async function searchMovie(title) {
     const API_KEY = process.env.TMDB_API_KEY;
     try {
-        const response = await axios.get(`https://api.themoviedb.org/3/search/movie`, {
+        const response = await axios.get(`https://api.themoviedb.org/3/search/multi`, {
             params: {
                 api_key: API_KEY,
                 query: title,
@@ -115,12 +256,16 @@ async function collectAndStoreTVData() {
                         filmData = await searchMovie(programData.items[station.id][0].title);
                     }
 
+                    const genre = filmData?.genre_ids?.map(id => GENRES.genres.find(g => g.id === id)).filter(Boolean) || [];
+
                     const infoToAppend = filmData ? {
                         adult: filmData.adult,
                         original_language: filmData.original_language,
                         original_title: filmData.original_title,
                         popularity: filmData.popularity,
                         release_date: filmData.release_date,
+                        media_type: filmData.media_type,
+                        genres: genre
                     } : {}
 
                     await pushFile(
